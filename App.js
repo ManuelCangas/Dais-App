@@ -1,20 +1,7 @@
-import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
+import Navigation from "./Navigation";
 
 export default function App() {
-  return (
-    <View style={styles.container}>
-      <Text>Esto es la App de Dais</Text>
-      <StatusBar style="auto" />
-    </View>
-  );
+  return <Navigation/>
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});
