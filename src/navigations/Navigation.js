@@ -8,7 +8,6 @@ import { faHouse } from "@fortawesome/free-solid-svg-icons/faHouse";
 import { faQrcode } from "@fortawesome/free-solid-svg-icons/faQrcode";
 import { faComments } from "@fortawesome/free-solid-svg-icons/faComments";
 import { faUser } from "@fortawesome/free-solid-svg-icons/faUser";
-import Post from "../components/Post";
 
 const Tab = createBottomTabNavigator();
 

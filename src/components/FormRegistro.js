@@ -1,25 +1,22 @@
-import {
-  Pressable,
-  Button,
-  StyleSheet,
-  Text,
-  TextInput,
-  View,
-} from "react-native";
+import { Pressable, StyleSheet, Text, TextInput, View } from "react-native";
+import { Picker } from "@react-native-picker/picker";
 import { useNavigation } from "@react-navigation/native";
 import axios from "axios";
 import React, { useState } from "react";
 import DatePicker from "@react-native-community/datetimepicker";
+import Feed from "./Feed";
 
 const FormRegistro = () => {
-  const URI = "http://192.168.1.18:8000";
+  const URI = "http://192.168.1.7:8000";
   const navigation = useNavigation();
   //Datos de usuario
   const [nombre, setNombre] = useState("");
   const [mail, setMail] = useState("");
   const [nickname, setNickname] = useState("");
   const [password, setPassword] = useState("");
+  const [repeatPassword, setRepeatPassword] = useState("");
   const [sexo, setSexo] = useState("");
+  const [rol, setRol] = useState(1);
   //Fecha de nacimiento
   const [selectedDate, setSelectedDate] = useState(new Date()); // Valor inicial como instancia de Date
   const [showDatePicker, setShowDatePicker] = useState(false);
@@ -29,25 +26,34 @@ const FormRegistro = () => {
   };
   const handleDatePickerChange = (event, selectedDate) => {
     setShowDatePicker(false); // Ocultar el DatePicker
-    if (selectedDate) {
+    if (selectedDate instanceof Date) {
       setSelectedDate(selectedDate);
     }
   };
   //Botón registro
-  const handleRegistro = () => {
-    axios
-      .post(URI + "/usuarios/", {
+  const handleRegistro = async () => {
+    try {
+      if (password !== repeatPassword) {
+        alert("Las contraseñas no coinciden");
+        return;
+      }
+      const response = await axios.post(URI + "/usuario/", {
         nombre: nombre,
         mail: mail,
         nickname: nickname,
         password: password,
-        edad: selectedDate,
+        edad: selectedDate.toISOString(),
         sexo: sexo,
-      })
-      .then(() => {
-        alert("Usuario registrado ");
-        navigation.navigate(Feed);
+        usuario_rol: rol,
       });
+      alert("Usuario registrado ");
+      navigation.navigate(Feed);
+    } catch (error) {
+      console.error("Error al registrar usuario:", error);
+      alert(
+        "Hubo un error al registrar el usuario. Por favor, inténtalo de nuevo."
+      );
+    }
   };
 
   return (
@@ -60,21 +66,51 @@ const FormRegistro = () => {
           <View style={styles.inputgroup}>
             <TextInput
               placeholder='Nombre'
-              onChange={setNombre}
+              onChangeText={setNombre}
               style={styles.txtinput}
             />
           </View>
           <View style={styles.inputgroup}>
-            <TextInput placeholder='Correo' onChange={setMail} style={styles.txtinput} />
+            <TextInput
+              placeholder='Correo'
+              onChangeText={setMail}
+              style={styles.txtinput}
+            />
           </View>
           <View style={styles.inputgroup}>
-            <TextInput placeholder='Apodo' onChange={setNickname} style={styles.txtinput} />
+            <TextInput
+              placeholder='Apodo'
+              onChangeText={setNickname}
+              style={styles.txtinput}
+            />
           </View>
           <View style={styles.inputgroup}>
-            <TextInput placeholder='Contraseña' onChange={setPassword} style={styles.txtinput} />
+            <TextInput
+              placeholder='Contraseña'
+              value={password}
+              onChangeText={setPassword}
+              secureTextEntry={true}
+              style={styles.txtinput}
+            />
           </View>
           <View style={styles.inputgroup}>
-            <TextInput placeholder='Sexo' onChange={setSexo} style={styles.txtinput} />
+            <TextInput
+              placeholder='Repitir Contraseña'
+              value={repeatPassword}
+              onChangeText={setRepeatPassword}
+              secureTextEntry={true}
+              style={styles.txtinput}
+            />
+          </View>
+          <View style={styles.inputgroup}>
+            <Picker
+              selectedValue={sexo}
+              onValueChange={(itemValue) => setSexo(itemValue)}
+              style={styles.picker}>
+              <Picker.Item label='Masculino' value='masculino' />
+              <Picker.Item label='Femenino' value='femenino' />
+              <Picker.Item label='Otro' value='otro' />
+            </Picker>
           </View>
           <View style={styles.inputgroup}>
             <Text style={styles.dateinput}>Fecha de nacimiento</Text>
@@ -147,15 +183,13 @@ const styles = StyleSheet.create({
     paddingStart: 10,
   },
   dateinput: {
-    fontSize: 20,
-    fontWeight: "bold",
+    fontSize: 16,
     width: "80%",
-    marginTop: 10,
-    marginBottom: 10,
+    marginTop: 0,
+    marginBottom: 8,
   },
   txtbtn: {
     fontSize: 20,
-    fontWeight: "bold",
   },
   btn: {
     backgroundColor: "lightgreen",
