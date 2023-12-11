@@ -1,7 +1,11 @@
 import React, { useState, useEffect } from "react";
 import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
+import * as SecureStore from "expo-secure-store";
 import { Camera } from "expo-camera";
 import { useNavigation } from "@react-navigation/native";
+import axios from "axios";
+
+const URL = "http://192.168.1.7:8000/";
 
 const Scanqr = () => {
   const [hasPermission, setHasPermission] = useState(null);
@@ -15,8 +19,35 @@ const Scanqr = () => {
     })();
   }, []);
 
-  const handleBarCodeScanned = ({ type, data }) => {
+  const handleBarCodeScanned = async ({ type, data }) => {
     setScanned(data);
+    const userToken = await SecureStore.getItemAsync("userToken");
+    console.log("Token de usuario:", userToken);
+    // Enviar solicitud al servidor
+    try {
+      const response = await axios.post(
+        `${URL}participante/validarqr`,
+        { userToken, data },
+        {
+          headers: {
+            Authorization: `Bearer ${userToken}`,
+          },
+        }
+      );
+      console.log(response.data);
+      if (response.status === 200) {
+        console.log("Asistencia actualizada exitosamente");
+        // Manejar la respuesta según sea necesario
+      } else {
+        console.error(
+          "Error en la respuesta del servidor:",
+          response.status,
+          response.data
+        );
+      }
+    } catch (error) {
+      console.error("Error al enviar solicitud al servidor: ", error);
+    }
   };
 
   if (hasPermission === null) {

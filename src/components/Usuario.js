@@ -5,7 +5,7 @@ import { useNavigation } from "@react-navigation/native";
 import axios from "axios";
 import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
 import { faCircleUser } from "@fortawesome/free-solid-svg-icons";
-import { format, differenceInYears, parseISO } from "date-fns";
+import { differenceInYears, parseISO } from "date-fns";
 
 const Usuario = () => {
   const URI = "http://192.168.1.7:8000";
