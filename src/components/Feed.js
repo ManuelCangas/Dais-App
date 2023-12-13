@@ -17,7 +17,7 @@ const Feed = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await fetch("http://192.168.1.7:8000/post/"); // Reemplaza con tu dirección IP local
+        const response = await fetch("http://192.168.1.4:8000/post/"); // Reemplaza con tu dirección IP local
         const data = await response.json();
         setPosts(data);
         setLoading(false);

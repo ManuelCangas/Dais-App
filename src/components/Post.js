@@ -1,19 +1,69 @@
-import React, { useState } from "react";
-import { View, Text, Image, StyleSheet, TouchableOpacity } from "react-native";
+import React, { useState, useEffect } from "react";
+import {
+  View,
+  Text,
+  Image,
+  StyleSheet,
+  TouchableOpacity,
+  Alert,
+} from "react-native";
+import * as SecureStore from "expo-secure-store";
+import axios from "axios";
+
+const URL = "http://192.168.1.4:8000/";
 
 const Post = ({ route }) => {
   const { post } = route.params;
   const [participated, setParticipated] = useState(false);
 
+  useEffect(() => {
+    const verificarParticipante = async () => {
+      try {
+        const userToken = await SecureStore.getItemAsync("userToken");
+        console.log("Token de usuario :", userToken);
+        const response = await axios.post(
+          `${URL}participante/${post.id}`,
+          { userToken },
+          {
+            headers: {
+              Authorization: `Bearer ${userToken}`,
+            },
+          }
+        );
+        console.log(response.data);
+        const participante = response.data;
+        if (
+          participante &&
+          participante.message !== "No se encontró el participante"
+        ) {
+          // Si el participante existe
+          setParticipated(true);
+        }
+      } catch (error) {
+        console.error("Error al verificar participación:", error);
+        if (error.response) {
+          console.error("Respuesta del servidor:", error.response.data);
+        } else if (error.request) {
+          console.error("No se recibió respuesta del servidor");
+        } else {
+          console.error("Error al realizar la solicitud:", error.message);
+        }
+      }
+    };
+
+    verificarParticipante();
+  }, [route, setParticipated]);
+
   // Función para manejar la participación
   const handleParticipation = async () => {
     try {
-      // Lógica para participar, enviar solicitud al servidor, etc.
-
-      // Cambiar el estado local indicando que el usuario ha participado
+      const userToken = await SecureStore.getItemAsync("userToken");
+      await axios.post(`${URL}participante/${post.id}/create`, null, {
+        headers: {
+          Authorization: `Bearer ${userToken}`,
+        },
+      });
       setParticipated(true);
-
-      // Mostrar un mensaje de éxito
       Alert.alert(
         "Participación exitosa",
         "¡Gracias por participar en este evento!"
@@ -33,18 +83,22 @@ const Post = ({ route }) => {
       <Text style={styles.title}>{post.titulo}</Text>
       {post.rutaImg && (
         <Image
-          source={{ uri: `http://192.168.1.7:8000/Imagenes/${post.rutaImg}` }}
+          source={{ uri: `http://192.168.1.4:8000/Imagenes/${post.rutaImg}` }}
           style={styles.postImage}
         />
       )}
       <Text style={styles.description}>{post.description}</Text>
       <Text style={styles.date}>{post.fecha}</Text>
       <Text style={styles.location}>{post.ubication}</Text>
-      {!participated && (
+      {!participated ? (
         <TouchableOpacity
           style={styles.participationButton}
           onPress={handleParticipation}>
           <Text style={styles.participationButtonText}>Participar</Text>
+        </TouchableOpacity>
+      ) : (
+        <TouchableOpacity style={styles.participationButton}>
+          <Text style={styles.participationButtonText}>Participando</Text>
         </TouchableOpacity>
       )}
     </View>

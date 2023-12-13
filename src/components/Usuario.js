@@ -8,7 +8,7 @@ import { faCircleUser } from "@fortawesome/free-solid-svg-icons";
 import { differenceInYears, parseISO } from "date-fns";
 
 const Usuario = () => {
-  const URI = "http://192.168.1.7:8000";
+  const URI = "http://192.168.1.4:8000";
 
   const navigation = useNavigation();
   const [userData, setUserData] = useState(null);

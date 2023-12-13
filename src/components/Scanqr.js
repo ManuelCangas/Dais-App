@@ -2,15 +2,13 @@ import React, { useState, useEffect } from "react";
 import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
 import * as SecureStore from "expo-secure-store";
 import { Camera } from "expo-camera";
-import { useNavigation } from "@react-navigation/native";
 import axios from "axios";
 
-const URL = "http://192.168.1.7:8000/";
+const URL = "http://192.168.1.4:8000/";
 
 const Scanqr = () => {
   const [hasPermission, setHasPermission] = useState(null);
   const [scanned, setScanned] = useState(false);
-  const navigation = useNavigation();
 
   useEffect(() => {
     (async () => {
@@ -26,8 +24,8 @@ const Scanqr = () => {
     // Enviar solicitud al servidor
     try {
       const response = await axios.post(
-        `${URL}participante/validarqr`,
-        { userToken, data },
+        `${URL}participante/post/validarqr`,
+        { data },
         {
           headers: {
             Authorization: `Bearer ${userToken}`,
@@ -35,19 +33,19 @@ const Scanqr = () => {
         }
       );
       console.log(response.data);
-      if (response.status === 200) {
-        console.log("Asistencia actualizada exitosamente");
-        // Manejar la respuesta según sea necesario
+      if (response.data.error === "Usuario no autorizado") {
+        alert("El usuario no está autorizado para realizar esta acción.");
+        return;
       } else {
-        console.error(
-          "Error en la respuesta del servidor:",
-          response.status,
-          response.data
-        );
+        alert("Felicidades, tu asistencia fue confirmada");
       }
     } catch (error) {
       console.error("Error al enviar solicitud al servidor: ", error);
     }
+  };
+
+  const resetScanned = () => {
+    setScanned(false);
   };
 
   if (hasPermission === null) {
@@ -69,9 +67,7 @@ const Scanqr = () => {
           {scanned ? "Código escaneado" : "Apunta la cámara hacia el código QR"}
         </Text>
         {scanned && (
-          <TouchableOpacity
-            style={styles.button}
-            onPress={() => setScanned(false)}>
+          <TouchableOpacity style={styles.button} onPress={resetScanned}>
             <Text style={styles.buttonText}>Escanear nuevamente</Text>
           </TouchableOpacity>
         )}

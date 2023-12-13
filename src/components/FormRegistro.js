@@ -7,7 +7,7 @@ import DatePicker from "@react-native-community/datetimepicker";
 import Feed from "./Feed";
 
 const FormRegistro = () => {
-  const URI = "http://192.168.1.7:8000";
+  const URI = "http://192.168.1.4:8000";
   const navigation = useNavigation();
   //Datos de usuario
   const [nombre, setNombre] = useState("");
@@ -46,8 +46,8 @@ const FormRegistro = () => {
         sexo: sexo,
         usuario_rol: rol,
       });
-      alert("Usuario registrado ");
-      navigation.navigate(Feed);
+      alert("Usuario registrado");
+      console.log(response);
     } catch (error) {
       console.error("Error al registrar usuario:", error);
       alert(

@@ -16,7 +16,7 @@ import { faLock } from "@fortawesome/free-solid-svg-icons/faLock";
 import FormRegistro from "./FormRegistro";
 
 const FormLogin = () => {
-  const URI = "http://192.168.1.7:8000";
+  const URI = "http://192.168.1.4:8000";
 
   const [error, setError] = useState(null);
   const [nickname, setNickname] = useState("");
