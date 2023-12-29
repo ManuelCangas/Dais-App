@@ -4,10 +4,11 @@ import { useNavigation } from "@react-navigation/native";
 import axios from "axios";
 import React, { useState } from "react";
 import DatePicker from "@react-native-community/datetimepicker";
-import Feed from "./Feed";
+import Constants from "expo-constants";
+
+const apiUrl = Constants.expoConfig.extra.API_URL;
 
 const FormRegistro = () => {
-  const URI = "http://192.168.1.4:8000";
   const navigation = useNavigation();
   //Datos de usuario
   const [nombre, setNombre] = useState("");
@@ -37,7 +38,7 @@ const FormRegistro = () => {
         alert("Las contraseñas no coinciden");
         return;
       }
-      const response = await axios.post(URI + "/usuario/", {
+      const response = await axios.post(`${apiUrl}/usuario/`, {
         nombre: nombre,
         mail: mail,
         nickname: nickname,
@@ -142,7 +143,7 @@ export default FormRegistro;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "lightgreen",
+    backgroundColor: "#cbe4dd",
   },
   header: {
     flex: 0,
@@ -175,7 +176,7 @@ const styles = StyleSheet.create({
     marginTop: 10,
     marginBottom: 10,
     borderBottomWidth: 1,
-    borderBottomColor: "lightgreen",
+    borderBottomColor: "#cbe4dd",
     paddingBottom: 5,
   },
   txtinput: {
@@ -192,7 +193,7 @@ const styles = StyleSheet.create({
     fontSize: 20,
   },
   btn: {
-    backgroundColor: "lightgreen",
+    backgroundColor: "#82aca9",
     borderRadius: 5,
     justifyContent: "center",
     alignItems: "center",

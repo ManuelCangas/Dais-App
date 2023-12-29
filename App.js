@@ -12,7 +12,12 @@ export default function App() {
   return (
     <>
       <NavigationContainer>
-        <Stack.Navigator initialRouteName='FormLogin'>
+        <Stack.Navigator
+          initialRouteName='FormLogin'
+          screenOptions={{
+            headerTintColor: "#cbe4dd",
+            headerStyle: { backgroundColor: "#257d7f" },
+          }}>
           <Stack.Screen
             name='Home'
             component={Home}

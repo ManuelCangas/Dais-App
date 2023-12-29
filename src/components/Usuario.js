@@ -6,10 +6,11 @@ import axios from "axios";
 import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
 import { faCircleUser } from "@fortawesome/free-solid-svg-icons";
 import { differenceInYears, parseISO } from "date-fns";
+import Constants from "expo-constants";
+
+const apiUrl = Constants.expoConfig.extra.API_URL;
 
 const Usuario = () => {
-  const URI = "http://192.168.1.4:8000";
-
   const navigation = useNavigation();
   const [userData, setUserData] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -31,7 +32,7 @@ const Usuario = () => {
       const userToken = await SecureStore.getItemAsync("userToken");
       console.log("Token de usuario:", userToken);
       // Hacer una solicitud al backend para obtener los detalles del usuario mediante token
-      const response = await axios.post(URI + "/usuario/perfil", null, {
+      const response = await axios.post(apiUrl + "/usuario/perfil", null, {
         headers: {
           Authorization: `Bearer ${userToken}`,
         },
@@ -77,7 +78,7 @@ const Usuario = () => {
         <Text>Cargando datos del usuario...</Text>
       ) : userData ? (
         <View style={styles.profileContainer}>
-          <Text style={styles.titulo}>Perfil del Usuario</Text>
+          <Text style={styles.titulo}>Perfil</Text>
           <View style={styles.avatarContainer}>
             <FontAwesomeIcon size={200} icon={faCircleUser} />
           </View>
@@ -102,18 +103,18 @@ const Usuario = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: "#cbe4dd",
     justifyContent: "center",
     alignItems: "center",
-    marginTop: 35,
-    marginBottom: 35,
+    padding: 18,
   },
   profileContainer: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    width: "80%",
+    width: "88%",
     borderRadius: 30,
-    borderColor: "#119050",
+    borderColor: "#257d7f",
     borderWidth: 3,
     padding: 20,
   },
@@ -136,7 +137,7 @@ const styles = StyleSheet.create({
   },
   button: {
     marginTop: 15,
-    backgroundColor: "#119050",
+    backgroundColor: "#257d7f",
     padding: 10,
     borderRadius: 5,
   },

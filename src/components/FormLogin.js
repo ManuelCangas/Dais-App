@@ -11,14 +11,16 @@ import {
 } from "react-native";
 import * as SecureStore from "expo-secure-store";
 import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
-import { faUser } from "@fortawesome/free-regular-svg-icons/faUser";
+import { faUser } from "@fortawesome/free-solid-svg-icons/faUser";
 import { faLock } from "@fortawesome/free-solid-svg-icons/faLock";
 import FormRegistro from "./FormRegistro";
+import Constants from "expo-constants";
+
+const apiUrl = Constants.expoConfig.extra.API_URL;
 
 const FormLogin = () => {
-  const URI = "http://192.168.1.4:8000";
+  const URI = `${apiUrl}/usuario/login-jugador`;
 
-  const [error, setError] = useState(null);
   const [nickname, setNickname] = useState("");
   const [password, setPassword] = useState("");
   const [userData, setUserData] = useState(null);
@@ -26,7 +28,7 @@ const FormLogin = () => {
 
   const handleLogin = async () => {
     try {
-      const response = await axios.post(URI + "/usuario/login", {
+      const response = await axios.post(`${URI}`, {
         nickname: nickname,
         password: password,
       });
@@ -43,7 +45,7 @@ const FormLogin = () => {
     } catch (error) {
       if (error.response && error.response.status === 401) {
         console.error("Credenciales invalidas");
-        setError("Credenciales invalidas");
+        alert("Credenciales invalidas");
       } else {
         console.error("Error en el inicio de sesión: ", error.message);
       }
@@ -92,11 +94,6 @@ const FormLogin = () => {
           <Pressable style={styles.footerpress}>
             <Text style={styles.footertxt}>Recuperar contraseña</Text>
           </Pressable>
-          {error && (
-            <View style={styles.errorContainer}>
-              <Text style={styles.errorText}>{error}</Text>
-            </View>
-          )}
         </View>
       </View>
     </View>
@@ -108,7 +105,7 @@ export default FormLogin;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "lightgreen",
+    backgroundColor: "#cbe4dd",
   },
   header: {
     flex: 1,
@@ -134,19 +131,21 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     fontWeight: "bold",
     alignSelf: "center",
+    color: "#257d7f",
   },
   txtsign: {
     fontSize: 20,
     fontWeight: "bold",
     marginTop: 15,
     marginBottom: 15,
+    color: "#257d7f",
   },
   inputgroup: {
     flexDirection: "row",
     marginTop: 10,
     marginBottom: 10,
     borderBottomWidth: 1,
-    borderBottomColor: "lightgreen",
+    borderBottomColor: "#cbe4dd",
     paddingBottom: 5,
   },
   icon: {
@@ -163,7 +162,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   btn: {
-    backgroundColor: "lightgreen",
+    backgroundColor: "#82aca9",
     borderRadius: 5,
     justifyContent: "center",
     alignItems: "center",
@@ -177,20 +176,10 @@ const styles = StyleSheet.create({
   footerpress: {
     alignSelf: "center",
     borderBottomWidth: 1,
-    borderBottomColor: "lightgreen",
+    borderBottomColor: "#cbe4dd",
     marginTop: 15,
   },
   footertxt: {
     fontWeight: "bold",
-  },
-  errorContainer: {
-    backgroundColor: "red",
-    padding: 10,
-    marginTop: 15,
-    borderRadius: 5,
-  },
-  errorText: {
-    color: "#fff",
-    textAlign: "center",
   },
 });

@@ -7,14 +7,24 @@ import {
   TouchableOpacity,
   Alert,
 } from "react-native";
+import Modal from "react-native-modal";
+import QRCode from "react-native-qrcode-svg";
 import * as SecureStore from "expo-secure-store";
 import axios from "axios";
+import { ScrollView } from "react-native";
+import { useNavigation } from "@react-navigation/native";
+import Constants from "expo-constants";
 
-const URL = "http://192.168.1.4:8000/";
+const apiUrl = Constants.expoConfig.extra.API_URL;
+
+const URL = `${apiUrl}/participante/`;
 
 const Post = ({ route }) => {
   const { post } = route.params;
   const [participated, setParticipated] = useState(false);
+  const [codigoData, setCodigoData] = useState("");
+  const [isModalVisible, setModalVisible] = useState(false);
+  const navigation = useNavigation();
 
   useEffect(() => {
     const verificarParticipante = async () => {
@@ -22,7 +32,7 @@ const Post = ({ route }) => {
         const userToken = await SecureStore.getItemAsync("userToken");
         console.log("Token de usuario :", userToken);
         const response = await axios.post(
-          `${URL}participante/${post.id}`,
+          `${URL}${post.id}`,
           { userToken },
           {
             headers: {
@@ -38,6 +48,8 @@ const Post = ({ route }) => {
         ) {
           // Si el participante existe
           setParticipated(true);
+          setCodigoData(response.data.codigo);
+          console.log(response.data.codigo);
         }
       } catch (error) {
         console.error("Error al verificar participación:", error);
@@ -54,11 +66,20 @@ const Post = ({ route }) => {
     verificarParticipante();
   }, [route, setParticipated]);
 
+  const toggleModal = () => {
+    setModalVisible(!isModalVisible);
+  };
+
+  const handleQR = () => {
+    console.log(codigoData);
+    toggleModal();
+  };
+
   // Función para manejar la participación
   const handleParticipation = async () => {
     try {
       const userToken = await SecureStore.getItemAsync("userToken");
-      await axios.post(`${URL}participante/${post.id}/create`, null, {
+      await axios.post(`${URL}${post.id}/create`, null, {
         headers: {
           Authorization: `Bearer ${userToken}`,
         },
@@ -68,6 +89,7 @@ const Post = ({ route }) => {
         "Participación exitosa",
         "¡Gracias por participar en este evento!"
       );
+      navigation.navigate("Feed");
     } catch (error) {
       console.error("Error al participar:", error);
       // Mostrar un mensaje de error si es necesario
@@ -83,13 +105,19 @@ const Post = ({ route }) => {
       <Text style={styles.title}>{post.titulo}</Text>
       {post.rutaImg && (
         <Image
-          source={{ uri: `http://192.168.1.4:8000/Imagenes/${post.rutaImg}` }}
+          source={{
+            uri: `${apiUrl}/Imagenes/${post.rutaImg}`,
+          }}
           style={styles.postImage}
         />
       )}
-      <Text style={styles.description}>{post.description}</Text>
-      <Text style={styles.date}>{post.fecha}</Text>
-      <Text style={styles.location}>{post.ubication}</Text>
+      <View style={styles.card}>
+        <ScrollView>
+          <Text style={styles.description}>{post.description}</Text>
+        </ScrollView>
+        <Text style={styles.date}> Fecha: {post.fecha}</Text>
+        <Text style={styles.location}> Lugar: {post.ubication}</Text>
+      </View>
       {!participated ? (
         <TouchableOpacity
           style={styles.participationButton}
@@ -97,9 +125,22 @@ const Post = ({ route }) => {
           <Text style={styles.participationButtonText}>Participar</Text>
         </TouchableOpacity>
       ) : (
-        <TouchableOpacity style={styles.participationButton}>
-          <Text style={styles.participationButtonText}>Participando</Text>
-        </TouchableOpacity>
+        <>
+          <TouchableOpacity style={styles.participationButton}>
+            <Text style={styles.participationButtonText}>Participando</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.qrButton} onPress={handleQR}>
+            <Text style={styles.qrText}>Código QR</Text>
+          </TouchableOpacity>
+          <Modal isVisible={isModalVisible} onBackdropPress={toggleModal}>
+            <View style={styles.modalContainer}>
+              <QRCode value={codigoData} size={200} />
+              <TouchableOpacity onPress={toggleModal}>
+                <Text style={styles.closeModalText}>Cerrar</Text>
+              </TouchableOpacity>
+            </View>
+          </Modal>
+        </>
       )}
     </View>
   );
@@ -108,35 +149,46 @@ const Post = ({ route }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 16,
-    backgroundColor: "#fff",
+    padding: 14,
+    backgroundColor: "#cbe4dd",
   },
   title: {
     fontSize: 24,
     fontWeight: "bold",
-    marginBottom: 8,
+    marginBottom: 15,
+    color: "#257d7f",
   },
   postImage: {
     width: "100%",
     height: 200,
     resizeMode: "cover",
     marginBottom: 8,
+    borderWidth: 2,
+    borderRadius: 5,
+    borderColor: "#257d7f",
+  },
+  card: {
+    borderRadius: 30,
+    backgroundColor: "white",
+    padding: 13,
+    height: "45%",
   },
   description: {
-    fontSize: 16,
+    fontSize: 18,
     marginBottom: 8,
+    overflow: "scroll",
   },
   date: {
-    fontSize: 14,
-    color: "#777",
+    fontSize: 15,
+    color: "#555",
     marginBottom: 8,
   },
   location: {
-    fontSize: 14,
+    fontSize: 15,
     color: "#555",
   },
   participationButton: {
-    backgroundColor: "#3498db",
+    backgroundColor: "#257d7f",
     paddingVertical: 12,
     paddingHorizontal: 24,
     borderRadius: 5,
@@ -147,6 +199,32 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: "bold",
     textAlign: "center",
+  },
+  qrButton: {
+    backgroundColor: "#a3473d",
+    paddingVertical: 12,
+    paddingHorizontal: 24,
+    borderRadius: 5,
+    marginTop: 16,
+  },
+  qrText: {
+    color: "#fff",
+    fontSize: 16,
+    fontWeight: "bold",
+    textAlign: "center",
+  },
+  modalContainer: {
+    backgroundColor: "#82aca9",
+    padding: 20,
+    borderRadius: 10,
+    alignItems: "center",
+  },
+  closeModalText: {
+    marginTop: 25,
+    padding: 15,
+    borderRadius: 5,
+    backgroundColor: "#a3473d",
+    color: "#fff",
   },
 });
 

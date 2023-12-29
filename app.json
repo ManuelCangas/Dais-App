@@ -11,6 +11,9 @@
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
+    "extra": {
+      "API_URL": "http://192.168.243.82:8000"
+    },
     "plugins": [
       [
         "expo-camera",
